@@ -1,9 +1,8 @@
 package algorithms.connectedcomponents
 
+import org.apache.spark.graphx._
 
 import scala.reflect.ClassTag
-
-import org.apache.spark.graphx._
 
 /**
   * Created by galpha on 4/15/16.
@@ -25,6 +24,9 @@ object ConnectedComponents {
     require(maxIterations > 0, s"Maximum of iterations must be greater than 0," +
       s" but got ${maxIterations}")
 
+    System.out.println("ConnectedComponents")
+    System.out.println("Iterations: " + maxIterations)
+
     val ccGraph = graph.mapVertices { case (vid, _) => vid }
     def sendMessage(edge: EdgeTriplet[VertexId, ED]): Iterator[(VertexId, VertexId)] = {
       if (edge.srcAttr < edge.dstAttr) {
@@ -36,8 +38,7 @@ object ConnectedComponents {
       }
     }
     val initialMessage = Long.MaxValue
-    val pregelGraph = Pregel(ccGraph, initialMessage,
-      maxIterations, EdgeDirection.Either)(
+    val pregelGraph = Pregel(ccGraph, initialMessage, maxIterations, EdgeDirection.Either)(
       vprog = (id, attr, msg) => math.min(attr, msg),
       sendMsg = sendMessage,
       mergeMsg = (a, b) => math.min(a, b))
